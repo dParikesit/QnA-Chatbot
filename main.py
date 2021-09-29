@@ -1,4 +1,7 @@
-from imp import reload
+from model import getAnswer, translateToEn, translateToId
+from typing import List
+import re
+
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import HTMLResponse
 
@@ -49,9 +52,15 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     while True:
         data = await websocket.receive_text()
-        await websocket.send_text(f"Message text was: {data}")
 
+        english = translateToEn(data)[0]["translation_text"]
+        # Known unwanted translation, where prosa in prosa.ai become prose.ai. Remove if exists
+        english = re.sub('prose', 'prosa', english)
+        answer = getAnswer(english)["answer"]
+        indo = translateToId(answer)[0]["translation_text"]
+
+        await websocket.send_text(f"Message text was: {indo}")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=5000, log_level="info", reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=5000, log_level="trace", reload=True)
