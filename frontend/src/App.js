@@ -59,8 +59,8 @@ function App() {
           <p className="control is-flex-grow-1">
             <input
               className="input"
-              type="password"
-              placeholder="Password"
+              type="text"
+              placeholder="Tulis pertanyaanmu disini"
             ></input>
           </p>
           <button className="button is-success">Send</button>
