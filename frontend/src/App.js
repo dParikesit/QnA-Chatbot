@@ -1,15 +1,48 @@
 import "./App.css";
 import "bulma/css/bulma.css";
+import { w3cwebsocket as W3CWebSocket } from "websocket";
+import { useState, useEffect } from "react";
 
 function App() {
+  const backend = "";
+  const [message, setMessage] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        let id = await fetch(backend + "/id", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        id = await id.json();
+        const client = await new W3CWebSocket(
+          `ws://localhost:5000/ws/${id}:5000`
+        );
+        console.log({ client });
+
+        client.onopen = () => {
+          console.log(`Websocket connected, id = ${id}`);
+        };
+
+        client.onmessage = (newMessage) => {
+          setMessage([...message, ["", newMessage]]);
+        };
+      } catch (error) {
+        console.log(error);
+      }
+    })();
+  }, []);
   return (
-    <div class="is-flex is-flex-direction-row is-justify-content-center">
-      <div class="container is-mobile">
-        <div class="notification is-primary">
-          Halo, saya chatty! Chatbot bahasa Indonesia milik Prosa.Ai. Kamu boleh tanya apa saja berkaitan Prosa.Ai kepada saya
+    <div className="is-flex is-flex-direction-row is-justify-content-center">
+      <div className="container is-mobile">
+        <div className="notification is-primary">
+          Halo, saya chatty! Chatbot bahasa Indonesia milik Prosa.Ai. Kamu boleh
+          tanya apa saja berkaitan Prosa.Ai kepada saya
         </div>
-        <div class="table-container">
-          <table class="table is-fullwidth">
+        <div className="table-container">
+          <table className="table is-fullwidth">
             <tbody>
               <tr>
                 <td>Halo 1.1</td>
@@ -22,11 +55,15 @@ function App() {
             </tbody>
           </table>
         </div>
-        <div class="field is-flex">
-          <p class="control is-flex-grow-1">
-            <input class="input" type="password" placeholder="Password"></input>
+        <div className="field is-flex">
+          <p className="control is-flex-grow-1">
+            <input
+              className="input"
+              type="password"
+              placeholder="Password"
+            ></input>
           </p>
-          <button class="button is-success">Send</button>
+          <button className="button is-success">Send</button>
         </div>
       </div>
     </div>
