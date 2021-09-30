@@ -1,9 +1,10 @@
+import json
 import secrets
 from model import getAnswer, translateToEn, translateToId
 from typing import List
 import re
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, status
 from fastapi.responses import HTMLResponse
 
 app = FastAPI()
@@ -55,9 +56,7 @@ class ConnectionManager:
         self.available_connections.append(client_id)
 
     async def connect(self, websocket: WebSocket, client_id: str):
-        if(client_id in self.available_connections):
-            await websocket.accept()
-            self.active_connections.append(websocket)
+        await websocket.accept()
 
     def disconnect(self, websocket: WebSocket, client_id: str):
         self.active_connections.remove(websocket)
@@ -85,6 +84,7 @@ async def get():
 @app.get("/id")
 async def getClientId():
     token = secrets.token_urlsafe(16)
+    manager.add_client(token)
     return token
 
 
@@ -92,7 +92,9 @@ async def getClientId():
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
     await manager.connect(websocket, client_id)
     try:
-        while True:
+        if(client_id not in manager.available_connections):
+            raise WebSocketDisconnect
+        while True:            
             data = await manager.receive_text(websocket)
 
             english = translateToEn(data)[0]["translation_text"]
