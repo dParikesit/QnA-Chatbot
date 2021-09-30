@@ -27,7 +27,7 @@ function App() {
         };
 
         client.onmessage = (newMessage) => {
-          setMessage([...message, ["", newMessage]]);
+          setMessage([...message, ["", newMessage.data]]);
         };
       } catch (error) {
         console.log(error);
@@ -44,14 +44,14 @@ function App() {
         <div className="table-container">
           <table className="table is-fullwidth">
             <tbody>
-              <tr>
-                <td>Halo 1.1</td>
-                <td>Halo 2.1</td>
-              </tr>
-              <tr>
-                <td>Halo 1.1</td>
-                <td>Halo 2.1</td>
-              </tr>
+              {message.map((post)=>{
+                return(
+                  <tr>
+                    <td>{post[0]}</td>
+                    <td>{post[1]}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
